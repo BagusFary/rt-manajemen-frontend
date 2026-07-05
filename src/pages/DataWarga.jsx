@@ -18,9 +18,12 @@ import {
     DialogActions,
     TextField,
     MenuItem,
-    Grid
+    Grid,
+    TablePagination,
+    InputAdornment,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import Swal from 'sweetalert2';
 import api from '../services/api';
 
@@ -28,8 +31,16 @@ export default function DataWarga() {
     const [warga, setWarga] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editId, setEditId] = useState(null);
+
     const [openPreview, setOpenPreview] = useState(false);
     const [previewUrl, setPreviewUrl] = useState('');
+
+    const [totalRows, setTotalRows] = useState(0); 
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
 
     const [openModal, setOpenModal] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -41,11 +52,28 @@ export default function DataWarga() {
         foto_ktp: null 
     });
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
     const fetchDataWarga = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/penghuni');
-            setWarga(response.data.data || response.data);
+            const response = await api.get('/penghuni', {
+                params: {
+                    page: page + 1, 
+                    per_page: rowsPerPage,
+                    search: debouncedSearch
+                }
+            });
+            
+            const paginationData = response.data.data;
+            
+            setWarga(paginationData.data);
+            setTotalRows(paginationData.total);
         } catch (error) {
             console.error('Gagal mengambil data warga:', error);
         } finally {
@@ -55,7 +83,21 @@ export default function DataWarga() {
 
     useEffect(() => {
         fetchDataWarga();
-    }, []);
+    }, [page, rowsPerPage, debouncedSearch]);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setPage(0);
+    };
 
     const handleOpenModal = () => setOpenModal(true);
 
@@ -245,14 +287,31 @@ export default function DataWarga() {
                 <Typography variant="h5" fontWeight="bold">
                     Data Warga (Penghuni)
                 </Typography>
-                <Button 
-                    variant="contained" 
-                    color="primary" 
-                    startIcon={<AddIcon />}
-                    onClick={handleOpenModal} 
-                >
-                    Tambah Warga
-                </Button>
+                
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <TextField
+                        size="small"
+                        placeholder="Cari nama, no hp, atau status..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        startIcon={<AddIcon />}
+                        onClick={handleOpenModal}
+                        sx={{ whiteSpace: 'nowrap' }}
+                    >
+                        Tambah Warga
+                    </Button>
+                </Box>
             </Box>
 
             <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2 }}>
@@ -261,68 +320,80 @@ export default function DataWarga() {
                         <CircularProgress />
                     </Box>
                 ) : (
-                    <Table sx={{ minWidth: 650 }}>
-                        <TableHead sx={{ bgcolor: '#f8f9fa' }}>
-                            <TableRow>
-                                <TableCell><b>No</b></TableCell>
-                                <TableCell><b>Nama Lengkap</b></TableCell>
-                                <TableCell><b>Status Penghuni</b></TableCell>
-                                <TableCell><b>No. Telepon</b></TableCell>
-                                <TableCell><b>Status Pernikahan</b></TableCell>
-                                <TableCell align="center"><b>Aksi</b></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {warga.length === 0 ? (
+                    <>
+                        <Table sx={{ minWidth: 650 }}>
+                            <TableHead sx={{ bgcolor: '#f8f9fa' }}>
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                                        Belum ada data warga.
-                                    </TableCell>
+                                    <TableCell><b>No</b></TableCell>
+                                    <TableCell><b>Nama Lengkap</b></TableCell>
+                                    <TableCell><b>Status Penghuni</b></TableCell>
+                                    <TableCell><b>No. Telepon</b></TableCell>
+                                    <TableCell><b>Status Pernikahan</b></TableCell>
+                                    <TableCell align="center"><b>Aksi</b></TableCell>
                                 </TableRow>
-                            ) : (
-                                warga.map((row, index) => (
-                                    <TableRow key={row.id} hover>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{row.nama_lengkap}</TableCell>
-                                        <TableCell>
-                                            <Chip 
-                                                label={row.status_penghuni} 
-                                                color={row.status_penghuni === 'Kontrak' ? 'warning' : 'success'} 
-                                                size="small" 
-                                            />
-                                        </TableCell>
-                                        <TableCell>{row.nomor_telepon}</TableCell>
-                                        <TableCell>{row.status_pernikahan}</TableCell>
-                                        <TableCell align="center">
-                                            <Button 
-                                                size="small" 
-                                                color="info" 
-                                                sx={{ mr: 1 }}
-                                                onClick={() => handleOpenPreview(row.foto_ktp)}
-                                            >
-                                                KTP
-                                            </Button>
-                                            <Button 
-                                                size="small" 
-                                                color="primary" 
-                                                sx={{ mr: 1 }}
-                                                onClick={() => handleOpenEditModal(row)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button 
-                                                size="small" 
-                                                color="error"
-                                                onClick={() => handleDelete(row.id)}
-                                            >
-                                                Hapus
-                                            </Button>
+                            </TableHead>
+                            <TableBody>
+                                {warga.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                                            Belum ada data warga.
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                ) : (
+                                    warga.map((row, index) => (
+                                        <TableRow key={row.id} hover>
+                                            <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                                            <TableCell>{row.nama_lengkap}</TableCell>
+                                            <TableCell>
+                                                <Chip 
+                                                    label={row.status_penghuni} 
+                                                    color={row.status_penghuni === 'Kontrak' ? 'warning' : 'success'} 
+                                                    size="small" 
+                                                />
+                                            </TableCell>
+                                            <TableCell>{row.nomor_telepon}</TableCell>
+                                            <TableCell>{row.status_pernikahan}</TableCell>
+                                            <TableCell align="center">
+                                                <Button 
+                                                    size="small" 
+                                                    color="info" 
+                                                    sx={{ mr: 1 }}
+                                                    onClick={() => handleOpenPreview(row.foto_ktp)}
+                                                >
+                                                    KTP
+                                                </Button>
+                                                <Button 
+                                                    size="small" 
+                                                    color="primary" 
+                                                    sx={{ mr: 1 }}
+                                                    onClick={() => handleOpenEditModal(row)}
+                                                >
+                                                    Edit
+                                                </Button>
+                                                <Button 
+                                                    size="small" 
+                                                    color="error"
+                                                    onClick={() => handleDelete(row.id)}
+                                                >
+                                                    Hapus
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25]}
+                            component="div"
+                            count={totalRows}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            labelRowsPerPage="Baris per halaman:"
+                        />
+                    </>
                 )}
             </TableContainer>
 
