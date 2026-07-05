@@ -25,8 +25,7 @@ export default function Login() {
                 password,
             });
 
-            const { user, token } = response.data; 
-
+            const { user, access_token: token } = response.data.data; 
             dispatch(setCredentials({ user, token }));
 
             navigate('/dashboard');
