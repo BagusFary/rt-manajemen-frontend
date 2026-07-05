@@ -28,6 +28,8 @@ export default function DataWarga() {
     const [warga, setWarga] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editId, setEditId] = useState(null);
+    const [openPreview, setOpenPreview] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const [openModal, setOpenModal] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -216,6 +218,27 @@ export default function DataWarga() {
         });
     };
 
+    const handleOpenPreview = (fotoKtpPath) => {
+        if (!fotoKtpPath) {
+            Swal.fire({ icon: 'info', title: 'Oops', text: 'Warga ini belum memiliki foto KTP.' });
+            return;
+        }
+
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, '');
+        
+        const fullImageUrl = fotoKtpPath.startsWith('http') 
+            ? fotoKtpPath 
+            : `${baseUrl}/storage/${fotoKtpPath}`;
+
+        setPreviewUrl(fullImageUrl);
+        setOpenPreview(true);
+    };
+
+    const handleClosePreview = () => {
+        setOpenPreview(false);
+        setPreviewUrl('');
+    };
+
     return (
         <Box sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -271,6 +294,14 @@ export default function DataWarga() {
                                         <TableCell>{row.nomor_telepon}</TableCell>
                                         <TableCell>{row.status_pernikahan}</TableCell>
                                         <TableCell align="center">
+                                            <Button 
+                                                size="small" 
+                                                color="info" 
+                                                sx={{ mr: 1 }}
+                                                onClick={() => handleOpenPreview(row.foto_ktp)}
+                                            >
+                                                KTP
+                                            </Button>
                                             <Button 
                                                 size="small" 
                                                 color="primary" 
@@ -390,6 +421,24 @@ export default function DataWarga() {
                         </Button>
                     </DialogActions>
                 </form>
+            </Dialog>
+
+            <Dialog open={openPreview} onClose={handleClosePreview} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>Preview Foto KTP</DialogTitle>
+                <DialogContent dividers sx={{ display: 'flex', justifyContent: 'center', bgcolor: '#f5f5f5' }}>
+                    {previewUrl ? (
+                        <img 
+                            src={previewUrl} 
+                            alt="KTP Warga" 
+                            style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain', borderRadius: '8px' }} 
+                        />
+                    ) : (
+                        <Typography color="error">Foto tidak tersedia</Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClosePreview} color="inherit">Tutup</Button>
+                </DialogActions>
             </Dialog>
         </Box>
     );
