@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import DataWarga from './pages/DataWarga';
+import DataRumah from './pages/DataRumah';
 
 export default function App() {
     return (
@@ -20,6 +21,8 @@ export default function App() {
                     <Route element={<AdminLayout />}>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/warga" element={<DataWarga />}/>
+                        <Route path="/rumah" element={<DataRumah />}/>
+                        
                     </Route>
                 </Route>
 
