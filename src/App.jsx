@@ -2,8 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { CssBaseline } from '@mui/material';
 
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard'; 
+import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminLayout from './layouts/AdminLayout';
 
 export default function App() {
     return (
@@ -15,8 +16,10 @@ export default function App() {
 
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    
+                    <Route element={<AdminLayout />}>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        
+                    </Route>
                 </Route>
 
                 {/* Fallback Route */}
