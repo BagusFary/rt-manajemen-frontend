@@ -26,12 +26,18 @@ Langkah-langkah untuk menyiapkan user interface:
     ```
 
 3.  **Konfigurasi Environment Variable**
-    Salin file contoh konfigurasi dan sesuaikan jika diperlukan:
-    ```bash
-    cp .env.example .env
-    ```
+    Salin file `.env.example` menjadi `.env` sesuai dengan sistem operasi/terminal yang Anda gunakan:
+
+    *   **Linux / macOS / Git Bash / PowerShell:**
+        ```bash
+        cp .env.example .env
+        ```
+    *   **Windows Command Prompt (CMD):**
+        ```cmd
+        copy .env.example .env
+        ```
     
-    Buka file `.env` dan pastikan `VITE_API_BASE_URL` mengarah ke URL Backend Laravel:
+    Setelah file disalin, buka file `.env` dan pastikan konfigurasi API mengarah ke URL Backend Laravel:
     ```env
     VITE_API_BASE_URL=http://127.0.0.1:8000/api
     ```
