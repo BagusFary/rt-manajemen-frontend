@@ -9,6 +9,7 @@ import DataWarga from './pages/DataWarga';
 import DataRumah from './pages/DataRumah';
 import TransaksiIuran from './pages/TransaksiIuran';
 import CatatPengeluaran from './pages/CatatPengeluaran';
+import LaporanKeuangan from './pages/LaporanKeuangan';
 
 export default function App() {
     return (
@@ -26,6 +27,7 @@ export default function App() {
                         <Route path="/rumah" element={<DataRumah />}/>
                         <Route path="/iuran" element={<TransaksiIuran />}/>
                         <Route path="/pengeluaran" element={<CatatPengeluaran />}/>
+                        <Route path="/keuangan" element={<LaporanKeuangan />}/>
                         
                     </Route>
                 </Route>

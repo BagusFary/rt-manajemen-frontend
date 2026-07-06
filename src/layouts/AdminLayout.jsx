@@ -26,6 +26,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import HomeIcon from '@mui/icons-material/Home';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
@@ -57,6 +58,7 @@ export default function AdminLayout() {
         { text: 'Data Rumah', icon: <HomeIcon />, path: '/rumah' },
         { text: 'Transaksi Iuran', icon: <AccountBalanceWalletIcon />, path: '/iuran' },
         { text: 'Catat Pengeluaran', icon: <AccountBalanceIcon />, path: '/pengeluaran' },
+        { text: 'Laporan Keuangan', icon: <AssessmentIcon  />, path: '/keuangan' },
     ];
 
     const drawer = (
