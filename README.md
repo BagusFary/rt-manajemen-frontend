@@ -1,16 +1,56 @@
-# React + Vite
+# Panduan Instalasi (Frontend): Sistem Informasi Manajemen RT (SIM RT)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Requirement 
+Sebelum memulai, pastikan perangkat Anda sudah terinstal:
+*   **PHP** (v8.1 atau lebih baru)
+*   **Composer**
+*   **Node.js** (LTS version) & **NPM**
+*   **Database Server** (MySQL)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 2. Setup Frontend (React.js)
 
-## React Compiler
+Langkah-langkah untuk menyiapkan user interface:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1.  **Masuk ke Direktori Frontend**
+    (Buka terminal baru agar server backend tetap berjalan)
+    ```bash
+    git clone https://github.com/BagusFary/rt-manajemen-frontend.git
+    cd rt-manajemen-frontend
+    ```
 
-## Expanding the ESLint configuration
+2.  **Install Dependensi Node.js**
+    ```bash
+    npm install
+    ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3.  **Konfigurasi Environment Variable**
+    Salin file contoh konfigurasi dan sesuaikan jika diperlukan:
+    ```bash
+    cp .env.example .env
+    ```
+    
+    Buka file `.env` dan pastikan `VITE_API_BASE_URL` mengarah ke URL Backend Laravel:
+    ```env
+    VITE_API_BASE_URL=http://127.0.0.1:8000/api
+    ```
+
+4.  **Jalankan Development Server**
+    ```bash
+    npm run dev
+    ```
+    *Aplikasi Frontend siap diakses di: `http://localhost:5173`*
+
+---
+
+### Kredensial Login (Admin)
+Setelah menjalankan perintah `php artisan db:seed` di backend, gunakan akun berikut untuk masuk ke sistem:
+
+*   **Email:** `rt.admin@jagoanhosting.com`
+*   **Password:** `password123`
+*   **Nama Akun:** Pak RT Rizal Faizal
+
+---
+
+*Dokumentasi ini disusun secara profesional untuk keperluan Skill Fit Test PT. Beon Intermedia.*
