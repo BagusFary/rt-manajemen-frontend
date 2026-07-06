@@ -9,6 +9,34 @@ Sebelum memulai, pastikan perangkat Anda sudah terinstal:
 
 ---
 
+
+### Cuplikan Antarmuka (Screenshots)
+
+Berikut adalah beberapa tampilan utama dari aplikasi SIM RT:
+
+| Transaksi Iuran | Laporan Keuangan |
+| :---: | :---: |
+| ![Transaksi Iuran](docs/screenshots/HalamanTransaksiIuran.png) | ![Laporan Keuangan](docs/screenshots/LaporanKeuangan.png) |
+
+<details>
+<summary><b>Lihat Semua Screenshot</b></summary>
+
+| Halaman | Preview |
+| :--- | :---: |
+| Dashboard | ![Dashboard](docs/screenshots/HalamanDashboard.png) |
+| Login | ![Login](docs/screenshots/HalamanLogin.png) |
+| Data Warga | ![Data Warga](docs/screenshots/HalamanDataWarga.png) |
+| Tambah Data Warga | ![Tambah Data](docs/screenshots/TambahDataWarga.png) |
+| Data Rumah | ![Data Rumah](docs/screenshots/HalamanDataRumah.png) |
+| Riwayat Per Rumah | ![Riwayat Rumah](docs/screenshots/RiwayatRumah.png) |
+| Catat Pengeluaran | ![Pengeluaran](docs/screenshots/HalamanCatatPengeluaran.png) |
+| Generate Tagihan | ![Tagihan](docs/screenshots/GenerateTagihanBulanan.png) |
+| Detail Laporan | ![Detail Laporan](docs/screenshots/DetailLaporanKeuangan.png) |
+| History Iuran | ![History](docs/screenshots/HistoryIuran.png) |
+
+</details>
+
+
 ### 2. Setup Frontend (React.js)
 
 Langkah-langkah untuk menyiapkan user interface:
