@@ -16,6 +16,7 @@ Langkah-langkah untuk menyiapkan user interface:
 1.  **Masuk ke Direktori Frontend**
     (Buka terminal baru agar server backend tetap berjalan)
     ```bash
+    git clone https://github.com/BagusFary/rt-manajemen-frontend.git
     cd rt-manajemen-frontend
     ```
 
