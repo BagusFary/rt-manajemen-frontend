@@ -39,7 +39,7 @@ Langkah-langkah untuk menyiapkan user interface:
 
 ---
 ### Kredensial Login (Admin)
-Setelah menjalankan perintah `php artisan db:seed`, gunakan akun berikut untuk masuk ke sistem:
+Setelah menjalankan seeder sebelumnya, gunakan akun berikut untuk masuk ke sistem:
 
 *   **Email:** `rt.admin@jagoanhosting.com`
 *   **Password:** `password123`
