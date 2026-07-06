@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import {  Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Line } from 'recharts';
+import DetailTransaksiModal from '../components/modals/DetailTransaksiModal';
 import api from '../services/api';
 
 const LaporanKeuangan = () => {
     const [data, setData] = useState([]);
     const [tahun, setTahun] = useState(new Date().getFullYear());
     const [loading, setLoading] = useState(true);
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedDetail, setSelectedDetail] = useState({ bulan: '', index: 0 });
 
     const fetchData = async () => {
         setLoading(true);
@@ -34,6 +38,12 @@ const LaporanKeuangan = () => {
         }).format(value);
     };
 
+    const handleBarClick = (data) => {
+        const monthMap = { 'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mei': 5, 'Jun': 6, 'Jul': 7, 'Agu': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Des': 12 };
+        setSelectedDetail({ bulan: data.bulan, index: monthMap[data.bulan] });
+        setModalOpen(true);
+    };
+
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -55,18 +65,39 @@ const LaporanKeuangan = () => {
                         {loading ? (
                             <Typography align="center">Memuat data...</Typography>
                         ) : (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="bulan" />
-                                    <YAxis tickFormatter={(val) => `${val >= 1000000 ? (val/1000000) + 'jt' : (val >= 1000 ? (val/1000) + 'rb' : val)}`} />
-                                    <Tooltip formatter={(value) => formatRupiah(value)} />
-                                    <Legend />
-                                    <Bar dataKey="pemasukan" name="Pemasukan" fill="#4caf50" />
-                                    <Bar dataKey="pengeluaran" name="Pengeluaran" fill="#f44336" />
-                                    <Line type="monotone" dataKey="saldo" name="Saldo Akhir" stroke="#2196f3" strokeWidth={3} />
-                                </ComposedChart>
-                            </ResponsiveContainer>
+                            <>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="bulan" />
+                                        <YAxis tickFormatter={(val) => `${val >= 1000000 ? (val/1000000) + 'jt' : (val >= 1000 ? (val/1000) + 'rb' : val)}`} />
+                                        <Tooltip formatter={(value) => formatRupiah(value)} />
+                                        <Legend />
+                                        <Bar 
+                                            dataKey="pemasukan" name="Pemasukan" fill="#4caf50" 
+                                            onClick={(data) => handleBarClick(data)} 
+                                            style={{ cursor: 'pointer' }} 
+                                        />
+                                        <Bar 
+                                            dataKey="pengeluaran" name="Pengeluaran" fill="#f44336" 
+                                            onClick={(data) => handleBarClick(data)}
+                                            style={{ cursor: 'pointer' }}
+                                        />
+                                        <Line 
+                                            type="monotone" dataKey="saldo" name="Saldo Akhir" 
+                                            onClick={(data) => handleBarClick(data)}
+                                            stroke="#2196f3" strokeWidth={3}
+                                            style={{ cursor: 'pointer' }} />
+                                    </ComposedChart>
+                                </ResponsiveContainer>
+                                <DetailTransaksiModal 
+                                    open={modalOpen} 
+                                    onClose={() => setModalOpen(false)} 
+                                    bulan={selectedDetail.bulan}
+                                    bulanIndex={selectedDetail.index}
+                                    tahun={tahun}
+                                />
+                            </>
                         )}
                     </Box>
                 </CardContent>
