@@ -8,6 +8,7 @@ import AdminLayout from './layouts/AdminLayout';
 import DataWarga from './pages/DataWarga';
 import DataRumah from './pages/DataRumah';
 import TransaksiIuran from './pages/TransaksiIuran';
+import CatatPengeluaran from './pages/CatatPengeluaran';
 
 export default function App() {
     return (
@@ -24,6 +25,7 @@ export default function App() {
                         <Route path="/warga" element={<DataWarga />}/>
                         <Route path="/rumah" element={<DataRumah />}/>
                         <Route path="/iuran" element={<TransaksiIuran />}/>
+                        <Route path="/pengeluaran" element={<CatatPengeluaran />}/>
                         
                     </Route>
                 </Route>
