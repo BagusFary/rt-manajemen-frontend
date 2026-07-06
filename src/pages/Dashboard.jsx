@@ -16,7 +16,7 @@ export default function Dashboard() {
                 </Typography>
                 
                 <Typography variant="body1" sx={{ mb: 4 }}>
-                    Anda telah berhasil login. Sesi Anda saat ini dilindungi oleh Redux Persist dan Bearer Token.
+                    Anda telah berhasil login.
                 </Typography>
             </Paper>
         </Box>
