@@ -23,12 +23,24 @@ export default function DataRumah() {
     const [openModal, setOpenModal] = useState(false);
     const [editId, setEditId] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
+
+    const [openRiwayatModal, setOpenRiwayatModal] = useState(false);
+    const [riwayatData, setRiwayatData] = useState([]);
+    const [loadingRiwayat, setLoadingRiwayat] = useState(false);
+
+    const [openPembayaranModal, setOpenPembayaranModal] = useState(false);
+    const [pembayaranData, setPembayaranData] = useState([]);
+    const [loadingPembayaran, setLoadingPembayaran] = useState(false);
     
     const [openAssignModal, setOpenAssignModal] = useState(false);
     const [selectedRumah, setSelectedRumah] = useState(null);
+    const [openUnassignModal, setOpenUnassignModal] = useState(false);
     const [assignData, setAssignData] = useState({
         penghuni_id: '',
         tanggal_masuk: ''
+    });
+    const [unassignData, setUnassignData] = useState({
+        tanggal_keluar: ''
     });
     const [listPenghuni, setListPenghuni] = useState([]);
 
@@ -134,6 +146,81 @@ export default function DataRumah() {
         } finally {
             setSubmitLoading(false);
         }
+    };
+
+    const handleOpenUnassign = (row) => {
+        setSelectedRumah(row);
+        setUnassignData({
+            tanggal_keluar: new Date().toISOString().split('T')[0]
+        });
+        setOpenUnassignModal(true);
+    };
+
+    const handleCloseUnassign = () => {
+        setOpenUnassignModal(false);
+        setSelectedRumah(null);
+    };
+
+    const handleUnassignSubmit = async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+        try {
+            await api.post(`/rumah/${selectedRumah.id}/kosongkan`, unassignData);
+            
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Rumah telah dikosongkan dan riwayat ditutup.', timer: 2000, showConfirmButton: false });
+            handleCloseUnassign();
+            fetchDataRumah();
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: error.response?.data?.message || 'Gagal mengosongkan rumah.' });
+        } finally {
+            setSubmitLoading(false);
+        }
+    };
+
+    const handleOpenRiwayat = async (row) => {
+        setSelectedRumah(row);
+        setOpenRiwayatModal(true);
+        setLoadingRiwayat(true);
+        
+        try {
+            const response = await api.get(`/rumah/${row.id}`);
+            
+            const detailRumah = response.data.data;
+            setRiwayatData(detailRumah.riwayat_penghuni || []);
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Tidak dapat memuat data riwayat.' });
+            setOpenRiwayatModal(false);
+        } finally {
+            setLoadingRiwayat(false);
+        }
+    };
+
+    const handleCloseRiwayat = () => {
+        setOpenRiwayatModal(false);
+        setSelectedRumah(null);
+        setRiwayatData([]);
+    };
+
+    const handleOpenPembayaran = async (row) => {
+        setSelectedRumah(row);
+        setOpenPembayaranModal(true);
+        setLoadingPembayaran(true);
+        
+        try {
+            const response = await api.get(`/rumah/${row.id}/pembayaran`);
+            setPembayaranData(response.data.data || []);
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Tidak dapat memuat history pembayaran.' });
+            setOpenPembayaranModal(false);
+        } finally {
+            setLoadingPembayaran(false);
+        }
+    };
+
+    const handleClosePembayaran = () => {
+        setOpenPembayaranModal(false);
+        setSelectedRumah(null);
+        setPembayaranData([]);
     };
 
     const handleSubmit = async (e) => {
@@ -250,17 +337,32 @@ export default function DataRumah() {
                                                     : '-'}
                                             </TableCell>
                                             <TableCell align="center">
-                                                {row.status_rumah === 'tidak_dihuni' && (
-                                                    <Button 
-                                                        size="small" 
-                                                        color="success" 
-                                                        variant="outlined"
-                                                        sx={{ mr: 1 }} 
-                                                        onClick={() => handleOpenAssign(row)}
-                                                    >
+                                                {row.status_rumah === 'tidak_dihuni' ? (
+                                                    <Button size="small" color="success" variant="outlined" sx={{ mr: 1 }} onClick={() => handleOpenAssign(row)}>
                                                         Isi Penghuni
                                                     </Button>
+                                                ) : (
+                                                    <Button size="small" color="warning" variant="outlined" sx={{ mr: 1 }} onClick={() => handleOpenUnassign(row)}>
+                                                        Kosongkan
+                                                    </Button>
                                                 )}
+                                                <Button 
+                                                    size="small" 
+                                                    color="info" 
+                                                    sx={{ mr: 1 }} 
+                                                    onClick={() => handleOpenRiwayat(row)}
+                                                >
+                                                    Riwayat
+                                                </Button>
+                                                <Button 
+                                                    size="small" 
+                                                    color="secondary" 
+                                                    variant="contained" 
+                                                    sx={{ mr: 1, boxShadow: 0 }} 
+                                                    onClick={() => handleOpenPembayaran(row)}
+                                                >
+                                                    Iuran
+                                                </Button>
                                                 <Button size="small" color="primary" sx={{ mr: 1 }} onClick={() => handleOpenEditModal(row)}>Edit</Button>
                                                 <Button size="small" color="error" onClick={() => handleDelete(row.id)}>Hapus</Button>
                                             </TableCell>
@@ -366,6 +468,154 @@ export default function DataRumah() {
                         </Button>
                     </DialogActions>
                 </form>
+            </Dialog>
+            <Dialog open={openUnassignModal} onClose={handleCloseUnassign} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>
+                    Kosongkan Rumah No. {selectedRumah?.nomor_rumah}
+                </DialogTitle>
+                <form onSubmit={handleUnassignSubmit}>
+                    <DialogContent dividers>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Tindakan ini akan mencatat tanggal keluar penghuni saat ini dan mengubah status rumah menjadi "Tidak Dihuni".
+                        </Typography>
+
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <TextField
+                                label="Tanggal Keluar"
+                                type="date"
+                                fullWidth
+                                required
+                                InputLabelProps={{ shrink: true }}
+                                value={unassignData.tanggal_keluar}
+                                onChange={(e) => setUnassignData({ ...unassignData, tanggal_keluar: e.target.value })}
+                            />
+                        </Box>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseUnassign} color="inherit">Batal</Button>
+                        <Button type="submit" variant="contained" color="warning" disabled={submitLoading}>
+                            {submitLoading ? 'Memproses...' : 'Proses Kosongkan'}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+            <Dialog open={openRiwayatModal} onClose={handleCloseRiwayat} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>
+                    Riwayat Penghuni - Rumah No. {selectedRumah?.nomor_rumah}
+                </DialogTitle>
+                <DialogContent dividers>
+                    {loadingRiwayat ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                            <Typography>Memuat data riwayat...</Typography>
+                        </Box>
+                    ) : (
+                        <TableContainer component={Paper} variant="outlined">
+                            <Table size="small">
+                                <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                                    <TableRow>
+                                        <TableCell width="5%">No</TableCell>
+                                        <TableCell>Nama Penghuni</TableCell>
+                                        <TableCell>Tanggal Masuk</TableCell>
+                                        <TableCell>Tanggal Keluar</TableCell>
+                                        <TableCell>Status</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {riwayatData.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                                                Belum ada riwayat penghuni untuk rumah ini.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        riwayatData.map((riwayat, index) => (
+                                            <TableRow key={riwayat.id} hover>
+                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>
+                                                    {riwayat.penghuni ? riwayat.penghuni.nama_lengkap : 'Data Terhapus'}
+                                                </TableCell>
+                                                <TableCell>{riwayat.tanggal_masuk}</TableCell>
+                                                <TableCell>{riwayat.tanggal_keluar || '-'}</TableCell>
+                                                <TableCell>
+                                                    <Chip 
+                                                        label={riwayat.tanggal_keluar ? 'Riwayat Lama' : 'Sedang Menghuni'} 
+                                                        color={riwayat.tanggal_keluar ? 'default' : 'success'}
+                                                        size="small"
+                                                        variant={riwayat.tanggal_keluar ? 'outlined' : 'filled'}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseRiwayat} color="inherit">Tutup</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={openPembayaranModal} onClose={handleClosePembayaran} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>
+                    History Iuran - Rumah No. {selectedRumah?.nomor_rumah}
+                </DialogTitle>
+                <DialogContent dividers>
+                    {loadingPembayaran ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                            <Typography>Memuat history pembayaran...</Typography>
+                        </Box>
+                    ) : (
+                        <TableContainer component={Paper} variant="outlined">
+                            <Table size="small">
+                                <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                                    <TableRow>
+                                        <TableCell width="5%">No</TableCell>
+                                        <TableCell>Periode (Bulan/Tahun)</TableCell>
+                                        <TableCell>Penanggung Jawab</TableCell>
+                                        <TableCell>Jenis Iuran</TableCell>
+                                        <TableCell>Status</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {pembayaranData.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                                                Belum ada history tagihan/pembayaran untuk rumah ini.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        pembayaranData.map((item, index) => (
+                                            <TableRow key={item.id} hover>
+                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>
+                                                    {item.bulan} / {item.tahun}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {item.penghuni ? item.penghuni.nama_lengkap : 'Penghuni Tidak Diketahui'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {item.jenis_iuran}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip 
+                                                        label={item.status_pembayaran === 'lunas' ? 'Lunas' : 'Belum Bayar'} 
+                                                        color={item.status_pembayaran === 'lunas' ? 'success' : 'error'}
+                                                        size="small"
+                                                        sx={{ fontWeight: 'bold' }}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClosePembayaran} color="inherit">Tutup</Button>
+                </DialogActions>
             </Dialog>
         </Box>
     );
