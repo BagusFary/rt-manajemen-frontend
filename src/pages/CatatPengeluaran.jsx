@@ -12,10 +12,9 @@ const CatatPengeluaran = () => {
         tanggal_pengeluaran: new Date().toISOString().split('T')[0]
     });
 
-    // Ambil data pengeluaran (kita buat function fetch-nya nanti di backend)
     const fetchPengeluaran = async () => {
         try {
-            const response = await api.get('/keuangan/pengeluaran'); // Sesuaikan endpoint
+            const response = await api.get('/keuangan/pengeluaran'); 
             setListPengeluaran(response.data.data);
         } catch (error) {
             console.error('Gagal memuat data:', error);
@@ -46,7 +45,6 @@ const CatatPengeluaran = () => {
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>Catat Pengeluaran Kas</Typography>
 
             <Grid container spacing={3}>
-                {/* FORM INPUT */}
                 <Grid item xs={12} md={4}>
                     <Card variant="outlined">
                         <CardContent>
@@ -73,7 +71,6 @@ const CatatPengeluaran = () => {
                     </Card>
                 </Grid>
 
-                {/* TABEL HISTORI */}
                 <Grid item xs={12} md={8}>
                     <Card variant="outlined">
                         <CardContent>
